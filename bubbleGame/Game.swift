@@ -12,9 +12,12 @@ class Game{
     var bubbles = [Bubble]()
     var maxOfBubbles = 15
     var time = 60
+    var numOfBubbles:Int {
+       return  bubbles.count
+    }
     init(){
-        let numberOfBubbles = arc4random_uniform(UInt32(self.maxOfBubbles+1))
-        pickBubbleColour(numberOfBubbles: Int(numberOfBubbles))
+        let firstnumberOfBubbles = arc4random_uniform(UInt32(self.maxOfBubbles+1))
+        pickBubbleColour(numberOfBubbles: Int(firstnumberOfBubbles))
     }
     
     func pickBubbleColour(numberOfBubbles:Int){

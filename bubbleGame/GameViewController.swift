@@ -39,21 +39,21 @@ class GameViewController:UIViewController {
         button.frame = CGRect(x: button.center.x, y: button.center.y, width: 50, height: 50)
     }
     
-    func generateUnverifyButtons(bubbles:[Bubble]) {
-        for index in bubbles.indices {
+    func createButtons(){
+        while overlapWithOther(buttons:buttons) && buttons.isEmpty{
+            generateUnverifyButtons(numOfBubble: game.numOfBubbles)
+        }
+        for index in buttons.indices{
+            buttons[index].backgroundColor = UIColor.white
+            buttons[index].addTarget(self, action: #selector(explosion), for: .touchUpInside)
+        }
+    }
+    
+    func generateUnverifyButtons(numOfBubble:Int) {
+        for index in 0..<numOfBubble {
             var button = UIButton.init(type:.custom)
             positionOfButton(button: &button)
             buttons[index] = button
-        }
-    }
-    func createButtons(){
-        while overlapWithOther(buttons:buttons){
-            generateUnverifyButtons(bubbles: game.bubbles)
-        }
-        for index in buttons.indices{
-            let button = buttons[index]
-            button.backgroundColor = UIColor.white
-            button.addTarget(self, action: #selector(explosion), for: .touchUpInside)
         }
     }
     
@@ -63,6 +63,7 @@ class GameViewController:UIViewController {
             buttons[index].setImage(UIImage(named:(bubbleButton[buttons[index]]!.colour+".jpg")), for: UIControlState.normal)
         }
     }
+    
     func overlapWithOther(buttons:[UIButton]) -> Bool{
         for index0 in 0..<buttons.count-1 {
             for index1 in (index0+1)..<buttons.count{
@@ -83,11 +84,25 @@ class GameViewController:UIViewController {
     @objc func explosion(_ sender: UIButton){
         guard let indexOfButton = buttons.index(of: sender) else {exit(3)}
         sender.removeFromSuperview()
+        bubbleButton.removeValue(forKey: sender)
         buttons.remove(at: indexOfButton)
         game.touchBubbles(at: indexOfButton)
-        bubbleButton.removeValue(forKey: sender)
     }
     @IBAction func touchBubble(_ sender: UIButton) {
         updateViewFromModel()
+    }
+    
+    func call() {
+        createButtons()
+        colourButtons(bubbles: game.bubbles)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        for index in buttons.indices{
+            self.view.addSubview(buttons[index])
+        }
+        // Do any additional setup after loading the view, typically from a nib.
+        
     }
 }
