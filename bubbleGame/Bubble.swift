@@ -11,12 +11,14 @@ import Foundation
 struct Bubble {
     var colour:String
     var score:Int
+    var touched:Bool
     var colourValue = ["red":1,"pink":2,"green":5,"blue":8,"black":10]
     
 
     init(colour:String){
         self.colour = colour
-        self.score = colourValue["\(colour)"]
+        self.score = colourValue["\(colour)"]!
+        self.touched = false
     }
 }
 
