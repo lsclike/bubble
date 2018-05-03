@@ -10,64 +10,50 @@ import Foundation
 import UIKit
 
 class GameViewController:UIViewController {
-    var game = Game()
-    var bubbleButton = [UIButton:Bubble]()
-    var buttons = [UIButton]()
+    var bubbles = [Bubble]()
+    var maxOfBubbles = 15
+    var time = 60
     
-    @IBOutlet weak var bubble: UIButton!
+    func addBubblesToView(){
+        for index in bubbles.indices{
+            self.view.addSubview(bubbles[index])
+            positionOfButton(bubble: bubbles[index])
+        }
+    }
     
-    //set random position for buttons
-    func positionOfButton(button: inout UIButton) {
+    
+    func positionOfButton(bubble:Bubble){
         let buttonWidth = CGFloat(50)
         let buttonHeight = CGFloat(50)
         
         // Find the width and height of the enclosing view
-        let viewWidth = button.superview!.bounds.width
-        let viewHeight = button.superview!.bounds.height
+        //        let viewWidth = self.superview!.bounds.width
+        //        let viewHeight = self.superview!.bounds.height
         
         // Compute width and height of the area to contain the button's center
-        let xwidth = viewWidth - buttonWidth
-        let yheight = viewHeight - buttonHeight
+        let xwidth = 1000 - buttonWidth
+        let yheight = 800 - buttonHeight
         
         // Generate a random x and y offset
         let xoffset = CGFloat(arc4random_uniform(UInt32(xwidth)))
         let yoffset = CGFloat(arc4random_uniform(UInt32(yheight)))
         
         // Offset the button's center by the random offsets.
-        button.center.x = xoffset + buttonWidth / 2
-        button.center.y = yoffset + buttonHeight / 2
-        button.frame = CGRect(x: button.center.x, y: button.center.y, width: 50, height: 50)
-    }
-    
-    func createButtons(){
-        while overlapWithOther(buttons:buttons) && buttons.isEmpty{
-            generateUnverifyButtons(numOfBubble: game.numOfBubbles)
-        }
-        for index in buttons.indices{
-            buttons[index].backgroundColor = UIColor.white
-            buttons[index].addTarget(self, action: #selector(explosion), for: .touchUpInside)
-        }
+        bubble.center.x = xoffset + buttonWidth / 2
+        bubble.center.y = yoffset + buttonHeight / 2
+        bubble.frame = CGRect(x: bubble.center.x, y: bubble.center.y, width: 50, height: 50)
     }
     
     func generateUnverifyButtons(numOfBubble:Int) {
-        for index in 0..<numOfBubble {
-            var button = UIButton.init(type:.custom)
-            positionOfButton(button: &button)
-            buttons[index] = button
+        for _ in 0..<numOfBubble {
+            bubbles.append(Bubble())
         }
     }
     
-    func colourButtons(bubbles:[Bubble]){
-        for index in buttons.indices{
-            bubbleButton[buttons[index]] = bubbles[index]
-            buttons[index].setImage(UIImage(named:(bubbleButton[buttons[index]]!.colour+".jpg")), for: UIControlState.normal)
-        }
-    }
-    
-    func overlapWithOther(buttons:[UIButton]) -> Bool{
-        for index0 in 0..<buttons.count-1 {
-            for index1 in (index0+1)..<buttons.count{
-                if buttons[index0].frame.intersects(buttons[index1].frame){
+    func overlapWithOther() -> Bool{
+        for index0 in 0..<(bubbles.count-1) {
+            for index1 in (index0+1)..<bubbles.count{
+                if bubbles[index0].frame.intersects(bubbles[index1].frame){
                     return true
                 }
             }
@@ -75,34 +61,72 @@ class GameViewController:UIViewController {
         return false
     }
     
-    func updateViewFromModel(){
-        bubble.frame.origin = CGPoint(x: 10, y: 10)
-        bubble.setImage(UIImage(named: "red.jpg"), for: UIControlState.normal)
+    func finalBubbles(numOfBubble: Int){
+        while overlapWithOther(){
+            generateUnverifyButtons(numOfBubble: numOfBubble)
+        }
     }
     
+    func singleOverlap(testBubble:Bubble,remainBubbles:[Bubble]) -> Bool{
+        for index in 0..<remainBubbles.count {
+            if testBubble.frame.intersects(remainBubbles[index].frame){
+                return true
+            }
+        }
+        return false
+    }
     
-    @objc func explosion(_ sender: UIButton){
-        guard let indexOfButton = buttons.index(of: sender) else {exit(3)}
+    func changeBubbles(){
+        var remainBubbles:Int
+        let remainPosition:Int
+        var finalChange:Int
+        bubbles = bubbles.filter{ $0.touched == false}
+        remainBubbles = bubbles.count
+        remainPosition = maxOfBubbles - remainBubbles
+        finalChange = Int(arc4random_uniform(UInt32(remainPosition+1))) - Int(arc4random_uniform(UInt32(remainBubbles+1)))
+        if finalChange > 0 {
+            while finalChange > 0{
+                var testBubble = Bubble()
+                while singleOverlap(testBubble: testBubble, remainBubbles:bubbles){
+                    testBubble = Bubble()
+                }
+                bubbles.append(testBubble)
+                finalChange -= 1
+            }
+        } else {
+            while (finalChange < 0) {
+                let indexOfBubbles = Int(arc4random_uniform(UInt32(remainBubbles)))
+                bubbles.remove(at: indexOfBubbles)
+                finalChange += 1
+                remainBubbles -= 1
+            }
+        }
+    }
+    
+    func touchBubbles(at bubble:Int){
+        bubbles[bubble].touched = true
+    }
+    
+    func addFunction(to bubbles:[Bubble]){
+        for index in bubbles.indices{
+            bubbles[index].addTarget(self, action: #selector(explosion), for: .touchUpInside)
+            self.view.addSubview(bubbles[index])
+        }
+    }
+    
+    @objc func explosion(_ sender: Bubble){
+        guard let indexOfButton = bubbles.index(of: sender) else {exit(3)}
         sender.removeFromSuperview()
-        bubbleButton.removeValue(forKey: sender)
-        buttons.remove(at: indexOfButton)
-        game.touchBubbles(at: indexOfButton)
-    }
-    @IBAction func touchBubble(_ sender: UIButton) {
-        updateViewFromModel()
+        touchBubbles(at: indexOfButton)
     }
     
-    func call() {
-        createButtons()
-        colourButtons(bubbles: game.bubbles)
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        for index in buttons.indices{
-            self.view.addSubview(buttons[index])
-        }
+        addFunction(to: bubbles)
+        
         // Do any additional setup after loading the view, typically from a nib.
         
     }
 }
+
