@@ -11,28 +11,107 @@ import UIKit
 
 class GameViewController:UIViewController {
     var bubbles = [Bubble]()
-    var maxOfBubbles = 15
-    var time = 60
+    var maxOfBubbles = SettingViewController.numOfBubbles
+    var time = SettingViewController.time
+    var currentMark = 0{
+        willSet(newValue){
+            if currentMark == newValue {
+                addMark = Int(round(Double(addMark)*1.5))
+            }
+            else{
+                addMark = newValue
+            }
+        }
+    }
+    var addMark = 0
+    var totalMark = 0
+    var timer = Timer()
+    var times = 0
+    var fatimes = 0
     
-    func addBubblesToView(){
-        for index in bubbles.indices{
-            self.view.addSubview(bubbles[index])
-            positionOfButton(bubble: bubbles[index])
+    @IBOutlet weak var Score: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
+    
+    func bubblesCount(){
+        print ("\(bubbles.indices)")
+    }
+    func changeTotalMark(){
+        totalMark += addMark
+    }
+    func displayCurrent(){
+        timeLabel.text = "Time: \(time)"
+        Score.text = "Score: \(totalMark)"
+    }
+    @objc func start(){
+        time -= 1
+        if time == 0 {
+            timer.invalidate()
+        }
+        else{
+            changeBubble(numOfChange: numOfChangedBubbles())
+            addFunction()
+        }
+        displayCurrent()
+        bubblesCount()
+    }
+    
+    func runTimer(){
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(start), userInfo: nil, repeats: true)
+    }
+    func changeBubble(numOfChange: Int){
+        var changed = numOfChange
+        
+        while changed > 0 {
+            if bubbles.count == 0{
+                var newbubble = randomBubble()
+                while !withinTheView(testBubble: newbubble){
+                    newbubble.removeFromSuperview()
+                    newbubble = randomBubble()
+                }
+                bubbles.append(newbubble)
+                print ("\(newbubble.superview!.center.x)")
+                changed -= 1
+            }else {
+                var newbubble = randomBubble()
+                while singleOverlap(testBubble: newbubble, remainBubbles: bubbles) || !withinTheView(testBubble: newbubble)
+                {
+                    newbubble.removeFromSuperview()
+                    newbubble = randomBubble()
+                }
+                bubbles.append(newbubble)
+                changed -= 1
+            }
+        }
+        while changed < 0 {
+            bubbles = bubbles.filter{ $0.touched == false}
+            let indexOfBubbles = Int(arc4random_uniform(UInt32(bubbles.count)))
+            print ("will removed: \(indexOfBubbles)")
+            let removedBubble  = bubbles.remove(at: indexOfBubbles)
+            removedBubble.removeFromSuperview()
+//            let removedBubble = bubbles.removeLast()
+//            removedBubble.removeFromSuperview()
+            changed += 1
         }
     }
     
+    func randomBubble() -> Bubble{
+        var newbubble = Bubble()
+        self.view.addSubview(newbubble)
+        positionOfButton(bubble: &newbubble)
+        return newbubble
+    }
     
-    func positionOfButton(bubble:Bubble){
+    func positionOfButton(bubble:inout Bubble){
         let buttonWidth = CGFloat(50)
         let buttonHeight = CGFloat(50)
         
         // Find the width and height of the enclosing view
-        //        let viewWidth = self.superview!.bounds.width
-        //        let viewHeight = self.superview!.bounds.height
+        let viewWidth = bubble.superview!.bounds.width
+        let viewHeight = bubble.superview!.bounds.height
         
         // Compute width and height of the area to contain the button's center
-        let xwidth = 1000 - buttonWidth
-        let yheight = 800 - buttonHeight
+        let xwidth = viewWidth - buttonWidth - 15
+        let yheight = viewHeight - buttonHeight - 100
         
         // Generate a random x and y offset
         let xoffset = CGFloat(arc4random_uniform(UInt32(xwidth)))
@@ -44,73 +123,44 @@ class GameViewController:UIViewController {
         bubble.frame = CGRect(x: bubble.center.x, y: bubble.center.y, width: 50, height: 50)
     }
     
-    func generateUnverifyButtons(numOfBubble:Int) {
-        for _ in 0..<numOfBubble {
-            bubbles.append(Bubble())
-        }
-    }
-    
-    func overlapWithOther() -> Bool{
-        for index0 in 0..<(bubbles.count-1) {
-            for index1 in (index0+1)..<bubbles.count{
-                if bubbles[index0].frame.intersects(bubbles[index1].frame){
-                    return true
-                }
-            }
-        }
-        return false
-    }
-    
-    func finalBubbles(numOfBubble: Int){
-        while overlapWithOther(){
-            generateUnverifyButtons(numOfBubble: numOfBubble)
-        }
-    }
     
     func singleOverlap(testBubble:Bubble,remainBubbles:[Bubble]) -> Bool{
-        for index in 0..<remainBubbles.count {
-            if testBubble.frame.intersects(remainBubbles[index].frame){
+        for bubble in remainBubbles {
+            if testBubble.frame.intersects(bubble.frame){
+                times += 1
                 return true
             }
         }
+        fatimes += 1
         return false
     }
     
-    func changeBubbles(){
-        var remainBubbles:Int
+    func withinTheView(testBubble: Bubble) -> Bool{
+//        let limitedWidth = testBubble.superview!.bounds.width
+//        let limitedHeigh = testBubble.superview!.bounds.height
+//        let newFrame = CGRect(x: testBubble.superview!.center.x, y:testBubble.superview!.center.y, width: limitedWidth, height: limitedHeigh)
+//        return newFrame.contains(testBubble.frame)
+        return testBubble.superview!.frame.contains(testBubble.frame)
+    }
+    
+    func numOfChangedBubbles() -> Int{
+        bubbles = bubbles.filter{ $0.touched == false}
+        let remainBubbles:Int
         let remainPosition:Int
         var finalChange:Int
-        bubbles = bubbles.filter{ $0.touched == false}
         remainBubbles = bubbles.count
         remainPosition = maxOfBubbles - remainBubbles
         finalChange = Int(arc4random_uniform(UInt32(remainPosition+1))) - Int(arc4random_uniform(UInt32(remainBubbles+1)))
-        if finalChange > 0 {
-            while finalChange > 0{
-                var testBubble = Bubble()
-                while singleOverlap(testBubble: testBubble, remainBubbles:bubbles){
-                    testBubble = Bubble()
-                }
-                bubbles.append(testBubble)
-                finalChange -= 1
-            }
-        } else {
-            while (finalChange < 0) {
-                let indexOfBubbles = Int(arc4random_uniform(UInt32(remainBubbles)))
-                bubbles.remove(at: indexOfBubbles)
-                finalChange += 1
-                remainBubbles -= 1
-            }
-        }
+        return finalChange
     }
     
     func touchBubbles(at bubble:Int){
         bubbles[bubble].touched = true
     }
     
-    func addFunction(to bubbles:[Bubble]){
-        for index in bubbles.indices{
-            bubbles[index].addTarget(self, action: #selector(explosion), for: .touchUpInside)
-            self.view.addSubview(bubbles[index])
+    func addFunction(){
+        for bubble in bubbles {
+            bubble.addTarget(self, action: #selector(explosion), for: .touchUpInside)
         }
     }
     
@@ -118,12 +168,21 @@ class GameViewController:UIViewController {
         guard let indexOfButton = bubbles.index(of: sender) else {exit(3)}
         sender.removeFromSuperview()
         touchBubbles(at: indexOfButton)
+        print("touch: \(indexOfButton)")
+        currentMark = sender.score
+        changeTotalMark()
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addFunction(to: bubbles)
+        let firstTime = Int(arc4random_uniform(UInt32(maxOfBubbles))) + 1
+        changeBubble(numOfChange: firstTime)
+        addFunction()
+        bubblesCount()
+        runTimer()
+        print ("times:\(times)")
+        print("\(fatimes)")
         
         // Do any additional setup after loading the view, typically from a nib.
         

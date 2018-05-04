@@ -16,6 +16,9 @@
 		61AACF3F209704080081C055 /* bubbleGameUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AACF3E209704080081C055 /* bubbleGameUITests.swift */; };
 		61AACF4D209704230081C055 /* Bubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AACF4C209704230081C055 /* Bubble.swift */; };
 		61AACF4F209732C60081C055 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AACF4E209732C60081C055 /* Game.swift */; };
+		61E26069209AF62D0084C9FC /* PlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E26068209AF62D0084C9FC /* PlayViewController.swift */; };
+		61E2606B209B2EF30084C9FC /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E2606A209B2EF30084C9FC /* SettingViewController.swift */; };
+		61E2606D209B30600084C9FC /* NameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E2606C209B30600084C9FC /* NameViewController.swift */; };
 		61F7F54A2098537000321CAB /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F7F5492098537000321CAB /* GameViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +55,9 @@
 		61AACF40209704080081C055 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		61AACF4C209704230081C055 /* Bubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bubble.swift; sourceTree = "<group>"; };
 		61AACF4E209732C60081C055 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		61E26068209AF62D0084C9FC /* PlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayViewController.swift; sourceTree = "<group>"; };
+		61E2606A209B2EF30084C9FC /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		61E2606C209B30600084C9FC /* NameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameViewController.swift; sourceTree = "<group>"; };
 		61F7F5492098537000321CAB /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,9 +109,12 @@
 		61AACF1D209704060081C055 /* bubbleGame */ = {
 			isa = PBXGroup;
 			children = (
+				61E2606A209B2EF30084C9FC /* SettingViewController.swift */,
+				61E26068209AF62D0084C9FC /* PlayViewController.swift */,
 				61AACF1E209704060081C055 /* AppDelegate.swift */,
 				61AACF20209704060081C055 /* ViewController.swift */,
 				61AACF22209704060081C055 /* Main.storyboard */,
+				61E2606C209B30600084C9FC /* NameViewController.swift */,
 				61F7F5492098537000321CAB /* GameViewController.swift */,
 				61AACF25209704080081C055 /* Assets.xcassets */,
 				61AACF27209704080081C055 /* LaunchScreen.storyboard */,
@@ -268,7 +277,10 @@
 				61F7F54A2098537000321CAB /* GameViewController.swift in Sources */,
 				61AACF21209704060081C055 /* ViewController.swift in Sources */,
 				61AACF1F209704060081C055 /* AppDelegate.swift in Sources */,
+				61E2606D209B30600084C9FC /* NameViewController.swift in Sources */,
 				61AACF4D209704230081C055 /* Bubble.swift in Sources */,
+				61E26069209AF62D0084C9FC /* PlayViewController.swift in Sources */,
+				61E2606B209B2EF30084C9FC /* SettingViewController.swift in Sources */,
 				61AACF4F209732C60081C055 /* Game.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
